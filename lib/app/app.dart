@@ -8,10 +8,20 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      /// 🔕 إزالة debug banner
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
-      initialRoute: AppRoutes.login,
+
+      /// 🎨 THEME
+      theme: AppTheme.light,
+
+      /// 🚀 START APP (Splash)
+      initialRoute: AppRoutes.splash,
+
+      /// 📌 ROUTES
       routes: AppRoutes.routes,
+
+      /// ❌ UNKNOWN ROUTE (fallback)
+      onUnknownRoute: AppRoutes.onUnknownRoute,
     );
   }
 }

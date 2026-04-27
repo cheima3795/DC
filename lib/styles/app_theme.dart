@@ -1,34 +1,59 @@
 import 'package:flutter/material.dart';
 
 class AppTheme {
-  static ThemeData lightTheme = ThemeData(
-    useMaterial3: true,
+  /// 🔵 PRIMARY COLOR
+  static const Color primary = Color(0xFF1976D2);
 
-    scaffoldBackgroundColor: const Color(0xFFF5F7FB),
+  /// ⚪ BACKGROUND
+  static const Color background = Colors.white;
 
-    colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF7B61FF)),
+  /// ⚫ TEXT
+  static const Color textPrimary = Colors.black87;
+  static const Color textSecondary = Colors.grey;
 
-    fontFamily: 'Poppins',
+  /// 🔴 ERROR
+  static const Color error = Colors.red;
 
-    inputDecorationTheme: InputDecorationTheme(
-      filled: true,
-      fillColor: Colors.white.withOpacity(0.9),
+  /// 🎨 THEME DATA
+  static ThemeData light = ThemeData(
+    primaryColor: primary,
+    scaffoldBackgroundColor: background,
 
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(16),
-        borderSide: BorderSide.none,
+    /// 🔥 APPBAR
+    appBarTheme: const AppBarTheme(
+      backgroundColor: Colors.white,
+      elevation: 0,
+      iconTheme: IconThemeData(color: Colors.black),
+      titleTextStyle: TextStyle(
+        color: Colors.black,
+        fontSize: 18,
+        fontWeight: FontWeight.bold,
       ),
     ),
 
+    /// 🔥 BUTTON
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xFF7B61FF),
+        backgroundColor: primary,
         foregroundColor: Colors.white,
-        elevation: 0,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        padding: const EdgeInsets.symmetric(vertical: 18),
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+    ),
+
+    /// 🔥 INPUT
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: Colors.grey[100],
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: 16,
+        vertical: 14,
+      ),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide.none,
       ),
     ),
   );

@@ -1,173 +1,189 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../../shared/components/custom_input.dart';
 import '../../../shared/components/custom_button.dart';
 import '../../../routes/app_routes.dart';
+import '../controllers/auth_controller.dart';
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
+
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  String email = "";
+  String password = "";
+
+  bool loading = false;
+  String error = "";
+
+  void handleLogin() async {
+    setState(() => error = "");
+
+    if (email.isEmpty || password.isEmpty) {
+      setState(() {
+        error = "Tous les champs sont obligatoires";
+      });
+      return;
+    }
+
+    setState(() => loading = true);
+
+    final data = await AuthController.login(email, password);
+
+    if (!mounted) return;
+
+    setState(() => loading = false);
+
+    if (data["token"] == null) {
+      setState(() {
+        error = data["message"] ?? "Erreur serveur";
+      });
+      return;
+    }
+
+    final status = data["user"]["status"];
+
+    if (status == "en_attente") {
+      Navigator.pushReplacementNamed(context, AppRoutes.waiting);
+    } else if (status == "approuve") {
+      Navigator.pushReplacementNamed(context, AppRoutes.home);
+    } else {
+      setState(() {
+        error = "Compte refusé";
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          /// 🔥 BACKGROUND
-          Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xFF6C63FF), Color(0xFF00C896)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-            ),
-          ),
+      backgroundColor: Colors.white,
+      resizeToAvoidBottomInset: true,
 
-          /// 🔵 FLOATING CIRCLE (depth effect)
-          Positioned(
-            top: -80,
-            right: -50,
-            child: _circle(200, Colors.white.withOpacity(0.1)),
-          ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              children: [
+                const SizedBox(height: 60),
 
-          Positioned(
-            bottom: -100,
-            left: -60,
-            child: _circle(250, Colors.white.withOpacity(0.08)),
-          ),
-
-          /// CONTENT
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 30),
-
-                  const Text(
-                    "Ghaytak",
-                    style: TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      letterSpacing: 1.2,
-                    ),
+                /// 🔵 LOGO (أكبر + أنظف)
+                Center(
+                  child: Image.asset(
+                    "assets/images/logo.jpeg",
+                    height: 180, // 🔥 كبرناه
+                    fit: BoxFit.contain,
                   ),
+                ),
 
-                  const SizedBox(height: 10),
+                const SizedBox(height: 40),
 
-                  const Text(
-                    "Smart local shopping",
-                    style: TextStyle(color: Colors.white70),
+                /// 🔥 CARD
+                Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(25),
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.blue.withOpacity(0.1),
+                        blurRadius: 20,
+                      )
+                    ],
                   ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "Login",
+                        style: TextStyle(
+                          fontSize: 26,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
 
-                  const SizedBox(height: 40),
+                      const SizedBox(height: 25),
 
-                  /// GLASS CARD 🔥
-                  Expanded(
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(30),
-                      child: BackdropFilter(
-                        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-                        child: Container(
-                          padding: const EdgeInsets.all(24),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.15),
-                            borderRadius: BorderRadius.circular(30),
-                            border: Border.all(
-                              color: Colors.white.withOpacity(0.2),
-                            ),
+                      /// ❌ ERROR
+                      if (error.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: Text(
+                            error,
+                            style: const TextStyle(color: Colors.red),
                           ),
-                          child: Column(
-                            children: [
-                              const SizedBox(height: 20),
+                        ),
 
-                              const Align(
-                                alignment: Alignment.centerLeft,
-                                child: Text(
-                                  "Login",
-                                  style: TextStyle(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
+                      /// EMAIL
+                      CustomInput(
+                        hint: "Email",
+                        icon: Icons.email,
+                        onChanged: (val) => email = val,
+                      ),
 
-                              const SizedBox(height: 30),
+                      const SizedBox(height: 20),
 
-                              const CustomInput(hint: "Email"),
-                              const SizedBox(height: 20),
+                      /// PASSWORD
+                      CustomInput(
+                        hint: "Mot de passe",
+                        isPassword: true,
+                        icon: Icons.lock,
+                        onChanged: (val) => password = val,
+                      ),
 
-                              const CustomInput(
-                                hint: "Mot de passe",
-                                isPassword: true,
-                              ),
+                      const SizedBox(height: 15),
 
-                              const SizedBox(height: 15),
-
-                              Align(
-                                alignment: Alignment.centerRight,
-                                child: GestureDetector(
-                                  onTap: () => Navigator.pushNamed(
-                                    context,
-                                    AppRoutes.forgot,
-                                  ),
-                                  child: const Text(
-                                    "Mot de passe oublié ?",
-                                    style: TextStyle(color: Colors.white70),
-                                  ),
-                                ),
-                              ),
-
-                              const SizedBox(height: 30),
-
-                              CustomButton(
-                                text: "Login",
-                                onPressed: () {
-                                  Navigator.pushNamed(
-                                    context,
-                                    AppRoutes.waiting,
-                                  );
-                                },
-                              ),
-
-                              const Spacer(),
-
-                              GestureDetector(
-                                onTap: () => Navigator.pushNamed(
-                                  context,
-                                  AppRoutes.register,
-                                ),
-                                child: const Text(
-                                  "Créer un compte",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ],
+                      /// FORGOT
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.pushNamed(context, AppRoutes.forgot);
+                          },
+                          child: const Text(
+                            "Mot de passe oublié ?",
+                            style: TextStyle(color: Colors.blue),
                           ),
                         ),
                       ),
-                    ),
+
+                      const SizedBox(height: 30),
+
+                      /// BUTTON
+                      CustomButton(
+                        text: "Login",
+                        loading: loading,
+                        onPressed: handleLogin,
+                      ),
+
+                      const SizedBox(height: 25),
+
+                      /// REGISTER
+                      Center(
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.pushNamed(context, AppRoutes.register);
+                          },
+                          child: const Text(
+                            "Créer un compte",
+                            style: TextStyle(
+                              color: Colors.blue,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
-        ],
+        ),
       ),
-    );
-  }
-
-  Widget _circle(double size, Color color) {
-    return Container(
-      height: size,
-      width: size,
-      decoration: BoxDecoration(shape: BoxShape.circle, color: color),
     );
   }
 }
